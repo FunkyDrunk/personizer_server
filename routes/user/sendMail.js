@@ -26,7 +26,7 @@ function sendMail(email, login, callback){
   transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
           console.log(error);
-          var err='Sending failed'
+          var err={message: 'Sending failed'}
           callback(err)
       }
       else {

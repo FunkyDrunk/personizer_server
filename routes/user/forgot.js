@@ -19,7 +19,7 @@ router.post('/', function(req, res, next) {
     }else {
       sendMail(email, userFind.name, function(err, data){  // FIXME: Переписать в промисы
         if(err){
-          return res.send(err)
+          return res.send({errMsg: err.message})
         }
         let newPassword = bcrypt.hashSync(data.password, 8);
         User.findOneAndUpdate(userFind._id, { password: newPassword } )

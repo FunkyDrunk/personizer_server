@@ -10,8 +10,8 @@ mongoose.Promise = Promise;
 
 /* GET home page. */
 router.post('/', function(req, res, next) {
-  var { name, password } = req.body;
-  User.findOne({name:name})
+  var { login, password } = req.body;
+  User.findOne({login:login})
   .then(userFind =>{
     if(!userFind){
       res.send({errMsg: "User not found", errType: 'login'})
@@ -27,8 +27,9 @@ router.post('/', function(req, res, next) {
     }
   })
   .then(user =>{
-    var token = jwt.sign({ name: user.name, role: user.role }, `omgSecret_${user.password}`);
-    return res.send({token, userName: user.name, userRole: user.role});
+    const { login, role, firstName, lastName, job, avatar } = user;
+    var token = jwt.sign({ login: user.login, role: user.role }, `omgSecret`);
+    return res.send({token, userLogin: login, userRole: role, firstName, lastName, job, avatar,});
   })
   .catch(err=>console.log(err))
 });

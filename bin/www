@@ -23,18 +23,26 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
 
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+
+
 mongoose.connect('mongodb://barry:drun4all@ds253960.mlab.com:53960/personizer', function (err) {
    if (err) throw err;
    console.log('Mongo Connect');
 });
+
+
+const io = require('socket.io')(server);
+module.exports = io;
+
+const users = require('../routes/socket')
+
+
+
 
 /**
  * Normalize a port into a number, string, or false.

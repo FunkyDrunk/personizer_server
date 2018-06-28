@@ -7,13 +7,20 @@ var logger = require('morgan');
 
 
 
+
 var indexRouter = require('./routes/index');
 var registrationRouter = require('./routes/user/registration');
 var loginRouter = require('./routes/user/login');
 var loginWithTokenRouter = require('./routes/user/loginWithToken');
 var forgotRouter = require('./routes/user/forgot');
+var changeUserInfoRouter = require('./routes/profile/changeUserInfo');
+var changePasswordRouter = require('./routes/profile/changePassword');
+var changeAvatarRouter = require('./routes/profile/changeAvatar');
+var changeRoleRouter = require('./routes/profile/changeRole');
+
 
 var app = express();
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -29,8 +36,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/registration', registrationRouter);
 app.use('/login', loginRouter);
-app.use('/loginWithToken', loginWithTokenRouter);
+app.use('/login_with_token', loginWithTokenRouter);
 app.use('/forgot', forgotRouter);
+app.use('/profile/info', changeUserInfoRouter);
+app.use('/profile/password', changePasswordRouter);
+app.use('/profile/avatar', changeAvatarRouter);
+app.use('/profile/role', changeRoleRouter);
+
+
 
 
 // catch 404 and forward to error handler
