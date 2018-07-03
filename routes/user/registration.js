@@ -26,7 +26,7 @@ router.post('/', function(req, res, next) {
     }
   })
   .then(newUser =>{
-    var token = jwt.sign({ login: newUser.login, role: newUser.role }, `omgSecret`);
+    var token = jwt.sign({ id: user._id, login: newUser.login, role: newUser.role }, `omgSecret`);
     return res.send({token, userLogin: newUser.login, userRole: newUser.role});
   })
   .catch(err=>console.log(err))
