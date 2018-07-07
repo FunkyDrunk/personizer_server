@@ -6,21 +6,22 @@ var jwt = require('jsonwebtoken');
 var usersOnline = {};
 
 const usersStatus = io
-  .of('/status')
+  .of('/chat')
   .on('connection', function (socket) {
     socket.on('sendStatus', (data, fn) => {
       jwt.verify(data, 'omgSecret', function(err, decoded) {
-        usersOnline[decoded.login] = socket.id;
+        usersOnline[decoded.id]?usersOnline[decoded.id].push(socket.id): usersOnline[decoded.id] = [socket.id];
         fn('online')
       })
       socket.broadcast.emit('statusChange');
     })
     socket.on('disconnect', () => {
-        console.log(socket.id)
         Object.keys(usersOnline).forEach(elem => {
-          console.log(usersOnline[elem] === socket.id)
-          if(usersOnline[elem] === socket.id) {
-            delete usersOnline[elem]
+          if(usersOnline[elem].includes(socket.id)) {
+            usersOnline[elem] = usersOnline[elem].filter(elem => elem != socket.id)
+            if(!usersOnline[elem].length) {
+              delete usersOnline[elem]
+            }
           }
         })
         socket.broadcast.emit('statusChange');

@@ -5,15 +5,15 @@ var jwt = require('jsonwebtoken');
 var usersOnline = require('./usersStatus')
 
 const users = io
-  .of('/users')
+  .of('/chat')
   .on('connection', function (socket) {
   socket.on('getUsers', (data, fn) => {
     jwt.verify(data, 'omgSecret', function(err, decoded) {
       User.find()
-      .then(users => users.filter(users => users.login != decoded.login))
+      .then(users => users.filter(users => users._id != decoded.id))
       .then(users => users.map(users => {
           const {firstName, lastName, login, avatar, _id } = users;
-          const online = Object.keys(usersOnline).some( elem => elem === login)
+          const online = Object.keys(usersOnline).some( elem => elem === _id + "")
           var user = {
             name: firstName && lastName ? `${firstName} ${lastName}` : firstName || lastName || login,
             avatar,

@@ -4,6 +4,8 @@ var Message = require('../../schemes/userMessagesSchema.js');
 var mongoose = require('mongoose');
 var jwt = require('jsonwebtoken');
 
+var usersOnline = require('../userList/usersStatus')
+
 const sendMessage = io
   .of('/chat')
   .on('connection', function (socket) {
@@ -16,45 +18,52 @@ const sendMessage = io
          members: { $all: [from ,to] }
       }).exec((err, elem) => {
         if(elem){
-          console.log(elem)
         Message.findOneAndUpdate({members: {
           $all: [from ,to]
         }
-        }, { $push: {messages: {from, to, text: message} } })
-        .catch(err => console.log(err))
+      }, { $push: {messages: {from, to, text: message} } } ).exec((err, elem) => {
+        Message.findOne({
+           members: { $all: [from ,to] }
+        }).exec((err, elem) => {
+          let newMessage = elem.messages.pop()
+
+        socket.emit('giveNewMessage',{sender: true, message: newMessage})
+
+        if(usersOnline[from]){
+          usersOnline[from].forEach( socketsId => {
+            socket.broadcast.to(socketsId).emit('giveNewMessage', {sender: true, message: newMessage});
+          })
+        }
+        if(usersOnline[to]){
+          usersOnline[to].forEach( socketsId => {
+            socket.broadcast.to(socketsId).emit('giveNewMessage', {sender: false, message: newMessage});
+          })
+        }
+        })
+      })
         }
         else {
           var newMessage = new Message({ members:[from, to], messages:[{from, to, text: message}] });
-          newMessage.save().catch(err => console.log(err));
+          newMessage.save()
+          .then(elem => {
+            socket.emit('giveNewMessage',{sender: true, message: elem.messages[0]})
+            if(usersOnline[from]){
+              usersOnline[from].forEach( socketsId => {
+                socket.broadcast.to(socketsId).emit('giveNewMessage', {sender: true, message: elem.messages[0]});
+              })
+            }
+            if(usersOnline[to]){
+              usersOnline[to].forEach( socketsId => {
+                socket.broadcast.to(socketsId).emit('giveNewMessage', {sender: false, message: elem.messages[0]});
+              })
+            }
+          })
+          .catch(err => console.log(err));
+
         }
       })
-      socket.emit('giveNewMessage', 'haha')
     })
   })
 });
 
 module.exports = sendMessage
-// Message.findById(from, (err, elem) => {
-//   if(elem){
-//     console.log(elem)
-//   Message.findByIdAndUpdate(from, { $push: {messages: {from, to, text: message} } })
-//   .catch(err => console.log(err))
-//   }
-//   else {
-//     console.log('elem')
-//     var newMessage = new Message({ _id:from, message:[{from, to, text: message}] });
-//     newMessage.save().catch(err => console.log(err));
-//   }
-// })
-// Message.findById(to, (err, elem) => {
-//   if(elem){
-//     console.log(elem)
-//   Message.findByIdAndUpdate(to, { $push: {messages: {to, from, text: message} } })
-//   .catch(err => console.log(err))
-//   }
-//   else {
-//     console.log('elem')
-//     var newMessage = new Message({ _id:to, message:[{to, from, text: message}] });
-//     newMessage.save().catch(err => console.log(err));
-//   }
-// })

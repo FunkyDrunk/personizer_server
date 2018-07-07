@@ -1,14 +1,11 @@
 var express = require('express');
 var router = express.Router();
-var bcrypt = require('bcryptjs');
 var User = require('../../schemes/userSchema.js');
 var mongoose = require('mongoose');
 var jwt = require('jsonwebtoken');
 mongoose.Promise = Promise;
 
 
-
-/* GET home page. */
 router.post('/', function(req, res, next) {
   const { data, token } = req.body;
   jwt.verify(token, 'omgSecret', function(err, decoded) {

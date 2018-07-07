@@ -11,21 +11,27 @@ const getMessages = io
     jwt.verify(data.token, 'omgSecret', function(err, decoded) {
       const user = decoded.id;
       const otherUserId = data.userId;
-      Message.findOne({
-         members: { $all: [user, otherUserId] }
-      }).exec((err, elem) => {
-        if(elem){
-          fn(elem.messages)
-          elem.message = elem.messages.map( elem => {
-            if(elem.to === user) {
-              elem.viewed = true;
-              return elem
-            }
-            else {
-              return elem
-            }
+      Message.find({
+         members: { $all: [user] }
+      })
+      .exec((err, elems) => {
+        if(elems){
+          var userMessages = {}
+          elems.forEach(elem => {
+            const member = elem.members.filter(users => users != user)
+            userMessages[member] = elem.messages.reverse()
           })
-          elem.save()
+          fn(userMessages)
+          // elem.message = elem.messages.map( elem => {
+          //   if(elem.to === user) {
+          //     elem.viewed = true;
+          //     return elem
+          //   }
+          //   else {
+          //     return elem
+          //   }
+          // })
+          // elem.save()
         }
         else {
           fn([])
