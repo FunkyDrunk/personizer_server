@@ -22,16 +22,6 @@ const getMessages = io
             userMessages[member] = elem.messages.reverse()
           })
           fn(userMessages)
-          // elem.message = elem.messages.map( elem => {
-          //   if(elem.to === user) {
-          //     elem.viewed = true;
-          //     return elem
-          //   }
-          //   else {
-          //     return elem
-          //   }
-          // })
-          // elem.save()
         }
         else {
           fn([])
